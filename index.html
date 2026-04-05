@@ -36,6 +36,9 @@
             line-height: 1.5;
             padding: 20px;
             font-size: 14px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
         }
 
         .container {
@@ -44,11 +47,12 @@
             display: flex;
             flex-direction: column;
             gap: 24px;
+            flex: 1;
         }
 
-        /* Header */
+        /* Premium Header with background #1f3d2b */
         .invoice-header-bar {
-            background: white;
+            background: #1f3d2b;
             border-radius: var(--radius);
             box-shadow: 0 4px 12px var(--shadow);
             padding: 20px 24px;
@@ -57,6 +61,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 20px;
+            color: white;
         }
 
         .logo-area {
@@ -70,7 +75,7 @@
             height: 60px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid var(--primary);
+            border: 2px solid white;
             background: white;
             padding: 3px;
         }
@@ -78,14 +83,20 @@
         .company-details h1 {
             font-family: 'Cormorant Garamond', serif;
             font-size: 28px;
-            color: var(--primary);
+            color: white;
             letter-spacing: 1px;
             font-weight: 700;
+            margin-bottom: 4px;
         }
 
         .company-details p {
-            color: var(--text-medium);
+            color: rgba(255,255,255,0.85);
             font-size: 13px;
+        }
+
+        .company-details .company-contact {
+            margin-top: 5px;
+            font-size: 12px;
         }
 
         .controls {
@@ -109,13 +120,12 @@
         }
 
         .btn-primary {
-            background: var(--primary);
-            color: white;
+            background: white;
+            color: var(--primary);
         }
         .btn-primary:hover {
-            background: var(--primary-light);
+            background: #e9ecef;
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(31,61,43,0.2);
         }
         .btn-secondary {
             background: #e9ecef;
@@ -126,11 +136,11 @@
         }
         .btn-outline {
             background: transparent;
-            border: 1px solid var(--primary);
-            color: var(--primary);
+            border: 1px solid white;
+            color: white;
         }
         .btn-outline:hover {
-            background: rgba(31,61,43,0.05);
+            background: rgba(255,255,255,0.1);
         }
         .btn-save {
             background: #1e7e34;
@@ -460,12 +470,30 @@
         }
         .toast.show { transform: translateY(0); }
 
+        /* Premium Footer */
+        .page-footer {
+            background: #1f3d2b;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            border-radius: var(--radius);
+            font-size: 13px;
+        }
+        .page-footer a {
+            color: #d4e6d4;
+            text-decoration: none;
+        }
+        .page-footer a:hover {
+            text-decoration: underline;
+        }
+
         @media (max-width: 900px) {
             .invoice-layout { flex-direction: column; }
             .controls { justify-content: center; }
         }
         @media print {
-            .editor-panel, .controls, .modal-overlay, .toast, .no-print { display: none !important; }
+            .editor-panel, .controls, .modal-overlay, .toast, .no-print, .page-footer { display: none !important; }
             .preview-panel { margin: 0; padding: 0; box-shadow: none; }
             body { background: white; padding: 0; }
             .watermark { opacity: 0.05; }
@@ -479,8 +507,10 @@
             <img src="34391.png" alt="Halder & Co. Logo" class="circular-logo" onerror="this.src='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Ccircle%20cx%3D%2250%22%20cy%3D%2250%22%20r%3D%2248%22%20fill%3D%22%231f3d2b%22%2F%3E%3Ctext%20x%3D%2250%22%20y%3D%2265%22%20text-anchor%3D%22middle%22%20fill%3D%22white%22%20font-size%3D%2240%22%20font-family%3D%22Arial%22%3EHC%3C%2Ftext%3E%3C%2Fsvg%3E'">
             <div class="company-details">
                 <h1>HALDER & CO.</h1>
-                <p>Quality Interior Materials at Competitive Rates | Topsia, Kolkata</p>
-                <p><i class="fas fa-phone"></i> +91 98317 76985 | <i class="fas fa-envelope"></i> halderandco.traders@gmail.com</p>
+                <p>Premium Interior Materials Tailored to Your Needs</p>
+                <div class="company-contact">
+                    <i class="fas fa-phone"></i> +91 98317 76985 | <i class="fas fa-envelope"></i> halderandco.traders@gmail.com
+                </div>
             </div>
         </div>
         <div class="controls">
@@ -567,9 +597,9 @@
             <div class="form-group">
                 <div class="optional-label">
                     <input type="checkbox" class="toggle-checkbox" id="showPaymentTerms" checked>
-                    <label for="showPaymentTerms" style="margin-bottom: 0;">Payment Terms (Cash Only)</label>
+                    <label for="showPaymentTerms" style="margin-bottom: 0;">Payment Terms (No Credit)</label>
                 </div>
-                <input type="text" id="paymentTerms" placeholder="e.g., 100% advance / Cash on Delivery" value="100% advance / Cash on Delivery. No credit.">
+                <input type="text" id="paymentTerms" placeholder="e.g., No credit shall be extended" value="No credit shall be extended">
             </div>
             <div class="form-group">
                 <div class="optional-label">
@@ -626,7 +656,7 @@
                 <div class="summary-row"><span>Round Off</span><span id="previewRoundOff">0.00</span></div>
                 <div class="summary-row total"><span>GRAND TOTAL</span><span id="previewTotal">₹0.00</span></div>
                 <div class="cash-note">
-                    <i class="fas fa-hand-holding-usd"></i> <strong>Payment:</strong> 100% advance / Cash on Delivery. No credit.
+                    <i class="fas fa-hand-holding-usd"></i> <strong>Payment:</strong> No credit shall be extended
                 </div>
             </div>
             <div id="previewNotes" style="margin-top:15px; background:#f9f9f7; padding:12px; border-radius:6px; display:none;">
@@ -634,7 +664,7 @@
             </div>
             <div class="authorization">
                 <div>
-                    <p id="previewPaymentTermsContainer"><strong>Payment Terms:</strong> <span id="previewPaymentTerms">100% advance / Cash on Delivery. No credit.</span></p>
+                    <p id="previewPaymentTermsContainer"><strong>Payment Terms:</strong> <span id="previewPaymentTerms">No credit shall be extended</span></p>
                     <p id="previewDeliveryTermsContainer"><strong>Delivery:</strong> <span id="previewDeliveryTerms">Subject to stock availability and full payment</span></p>
                     <p><strong>Bank Details:</strong> HALDER & CO, A/C: 50200119707544, IFSC: HDFC0008949, Branch: BOW BAZAR</p>
                     <p><strong>PAN:</strong> AASFH5716J</p>
@@ -652,6 +682,12 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- Premium Footer -->
+<div class="page-footer no-print">
+    <p>Halder & Co. – Trusted Supplier of Premium Interior Materials | GSTIN: 19AASFH5716J1ZS</p>
+    <p style="font-size: 12px; margin-top: 5px;">&copy; <span id="currentYear"></span> Halder & Co. | All rights reserved | <a href="#">Privacy Policy</a></p>
 </div>
 
 <!-- Export Modal -->
@@ -676,6 +712,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        // Current year for footer
+        document.getElementById('currentYear').textContent = new Date().getFullYear();
+        
         // ---------- DATA ----------
         let items = [{ slNo:1, name:"", hsn:"", qty:1, price:0, unit:"Pcs", total:0 }];
         let logoDataUrl = null;
@@ -725,7 +764,7 @@
                     document.getElementById('taxRate').value = data.taxRate || 9;
                     document.getElementById('roundOff').value = data.roundOff || 0;
                     document.getElementById('notes').value = data.notes || '';
-                    document.getElementById('paymentTerms').value = data.paymentTerms || '100% advance / Cash on Delivery. No credit.';
+                    document.getElementById('paymentTerms').value = data.paymentTerms || 'No credit shall be extended';
                     document.getElementById('deliveryTerms').value = data.deliveryTerms || 'Subject to stock availability and full payment';
                     document.getElementById('showPaymentTerms').checked = data.showPaymentTerms !== false;
                     document.getElementById('showDeliveryTerms').checked = data.showDeliveryTerms !== false;
@@ -831,7 +870,7 @@
                     row.innerHTML = `<td class="text-center">${it.slNo}</td><td>${escapeHtml(it.name) || '-'}</td><td class="text-center">${it.hsn || '-'}</td><td class="text-center">${it.qty}</td><td class="text-right">${formatCurrency(it.price)}</td><td class="text-center">${it.unit}</td><td class="text-right">${formatCurrency(it.total)}</td>`;
                 }
             });
-            if(tbody.children.length===0) tbody.innerHTML = '<tr><td colspan="7" class="text-center">No items added</td></tr>';
+            if(tbody.children.length===0) tbody.innerHTML = '<tr><td colspan="7" class="text-center">No items added</td>' + '</tr>';
             
             let taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
             let cgst = taxable * taxRate / 100;
@@ -868,23 +907,45 @@
             saveToStorage();
         }
         
-        // Logo watermark
-        function setWatermark() {
-            let img = new Image();
-            img.crossOrigin = 'Anonymous';
-            img.onload = function() {
-                let canvas = document.createElement('canvas');
-                canvas.width = img.width; canvas.height = img.height;
-                let ctx = canvas.getContext('2d');
-                ctx.drawImage(img,0,0);
-                logoDataUrl = canvas.toDataURL();
-                let watermarkDiv = document.getElementById('watermarkDiv');
-                if(watermarkDiv) watermarkDiv.style.backgroundImage = `url('${logoDataUrl}')`;
-            };
-            img.src = '34391.png';
-            img.onerror = () => { document.getElementById('watermarkDiv').style.backgroundColor = 'rgba(31,61,43,0.02)'; };
+        // Logo watermark and data URL for PDF
+        function setWatermarkAndLogoData() {
+            return new Promise((resolve) => {
+                let img = new Image();
+                img.crossOrigin = 'Anonymous';
+                img.onload = function() {
+                    let canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    let ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    logoDataUrl = canvas.toDataURL('image/png');
+                    let watermarkDiv = document.getElementById('watermarkDiv');
+                    if(watermarkDiv) watermarkDiv.style.backgroundImage = `url('${logoDataUrl}')`;
+                    resolve();
+                };
+                img.onerror = function() {
+                    document.getElementById('watermarkDiv').style.backgroundColor = 'rgba(31,61,43,0.02)';
+                    // Create a fallback logo data URL
+                    let canvas = document.createElement('canvas');
+                    canvas.width = 120;
+                    canvas.height = 120;
+                    let ctx = canvas.getContext('2d');
+                    ctx.fillStyle = '#1f3d2b';
+                    ctx.beginPath();
+                    ctx.arc(60, 60, 55, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = 'white';
+                    ctx.font = 'bold 36px "Source Sans 3"';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText('HC', 60, 60);
+                    logoDataUrl = canvas.toDataURL('image/png');
+                    resolve();
+                };
+                img.src = '34391.png';
+            });
         }
-        setWatermark();
+        setWatermarkAndLogoData();
         
         // Add item
         document.getElementById('addItemBtn').addEventListener('click', ()=>{
@@ -910,7 +971,7 @@
                 document.getElementById('taxRate').value = 9;
                 document.getElementById('roundOff').value = 0;
                 document.getElementById('notes').value = '';
-                document.getElementById('paymentTerms').value = '100% advance / Cash on Delivery. No credit.';
+                document.getElementById('paymentTerms').value = 'No credit shall be extended';
                 document.getElementById('deliveryTerms').value = 'Subject to stock availability and full payment';
                 document.getElementById('showPaymentTerms').checked = true;
                 document.getElementById('showDeliveryTerms').checked = true;
@@ -929,7 +990,7 @@
         document.getElementById('showPaymentTerms')?.addEventListener('change', updatePreview);
         document.getElementById('showDeliveryTerms')?.addEventListener('change', updatePreview);
         
-        // Export functionality (identical to Urban Kutir)
+        // ----- Export functionality (fixed PDF) -----
         const exportModal = document.getElementById('exportModal');
         const exportBtn = document.getElementById('exportInvoice');
         let selectedType = null;
@@ -944,43 +1005,71 @@
                 document.getElementById('confirmExportBtn').disabled = false;
             };
         });
+        
         function getPrintHtml() {
             const clone = document.getElementById('previewPanel').cloneNode(true);
+            // Remove any interactive elements if needed
             return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Halder & Co. Invoice</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><style>body { font-family: "Source Sans 3", sans-serif; margin: 20mm; } .watermark { opacity: 0.05; } .no-print { display: none; } .invoice-table { width:100%; border-collapse:collapse; } th, td { border-bottom:1px solid #ddd; padding:8px; } .summary { max-width:320px; margin-left:auto; } .authorization { display:flex; justify-content:space-between; margin-top:30px; } .cash-note { background:#fff3cd; padding:8px; }</style></head><body>'+clone.outerHTML+'</body></html>';
         }
+        
         async function generatePDF() {
-            const progress = document.getElementById('exportProgress');
-            progress.classList.add('active');
+            const progressDiv = document.getElementById('exportProgress');
+            if(!progressDiv) return;
+            progressDiv.classList.add('active');
             document.getElementById('confirmExportBtn').disabled = true;
             try {
+                // Ensure logo is loaded
+                if(!logoDataUrl) await setWatermarkAndLogoData();
                 const html = getPrintHtml();
-                const temp = document.createElement('div');
-                temp.style.position = 'absolute'; temp.style.left = '-9999px'; temp.style.width = '800px';
-                temp.innerHTML = html;
-                document.body.appendChild(temp);
-                await new Promise(r=>setTimeout(r,500));
-                const canvas = await html2canvas(temp.querySelector('.preview-panel'), { scale:2, backgroundColor:'#ffffff' });
-                document.body.removeChild(temp);
+                const tempContainer = document.createElement('div');
+                tempContainer.style.position = 'absolute';
+                tempContainer.style.left = '-9999px';
+                tempContainer.style.top = '0';
+                tempContainer.style.width = '800px';
+                tempContainer.style.backgroundColor = 'white';
+                tempContainer.innerHTML = html;
+                document.body.appendChild(tempContainer);
+                // Wait for images to load
+                await new Promise(resolve => setTimeout(resolve, 800));
+                const targetElement = tempContainer.querySelector('.preview-panel');
+                if(!targetElement) throw new Error('Preview panel not found');
+                const canvas = await html2canvas(targetElement, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    windowWidth: targetElement.scrollWidth,
+                    windowHeight: targetElement.scrollHeight
+                });
+                document.body.removeChild(tempContainer);
                 const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF('p','mm','a4');
+                const pdf = new jsPDF('p', 'mm', 'a4');
                 const imgWidth = 210;
                 const imgHeight = (canvas.height * imgWidth) / canvas.width;
-                let pos = 0;
-                pdf.addImage(canvas, 'PNG', 0, pos, imgWidth, imgHeight);
-                let heightLeft = imgHeight - 297;
+                let heightLeft = imgHeight;
+                let position = 0;
+                pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= 297;
                 while (heightLeft > 0) {
-                    pos = heightLeft - imgHeight;
+                    position = heightLeft - imgHeight;
                     pdf.addPage();
-                    pdf.addImage(canvas, 'PNG', 0, pos, imgWidth, imgHeight);
+                    pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
                     heightLeft -= 297;
                 }
-                pdf.save(`Halder_Invoice_${document.getElementById('invoiceNo').value || 'Draft'}.pdf`);
-                progress.classList.remove('active');
+                const invoiceNo = document.getElementById('invoiceNo').value || 'Draft';
+                pdf.save(`Halder_Invoice_${invoiceNo}.pdf`);
+                progressDiv.classList.remove('active');
                 document.getElementById('confirmExportBtn').disabled = false;
                 exportModal.classList.remove('active');
-                showToast('PDF downloaded');
-            } catch(e) { progress.classList.remove('active'); document.getElementById('confirmExportBtn').disabled = false; showToast('PDF failed', 'error'); }
+                showToast('PDF downloaded successfully');
+            } catch (error) {
+                console.error('PDF error:', error);
+                progressDiv.classList.remove('active');
+                document.getElementById('confirmExportBtn').disabled = false;
+                showToast('PDF generation failed. Please try again.', 'error');
+            }
         }
+        
         function directPrint() {
             const win = window.open();
             win.document.write(getPrintHtml());
@@ -988,6 +1077,7 @@
             win.print();
             exportModal.classList.remove('active');
         }
+        
         function showPreview() {
             const previewModal = document.getElementById('printPreviewModal');
             document.getElementById('printPreviewContent').innerHTML = getPrintHtml();
@@ -996,6 +1086,7 @@
             document.getElementById('closePrintPreviewBtn').onclick = () => previewModal.classList.remove('active');
             exportModal.classList.remove('active');
         }
+        
         document.getElementById('confirmExportBtn').onclick = () => {
             if(selectedType === 'print') directPrint();
             else if(selectedType === 'pdf') generatePDF();
@@ -1003,8 +1094,17 @@
             selectedType = null;
             document.getElementById('confirmExportBtn').disabled = true;
         };
+        
+        // Close preview modal handlers
         document.getElementById('closePreviewModal')?.addEventListener('click', ()=>document.getElementById('printPreviewModal').classList.remove('active'));
-        document.getElementById('printNow')?.addEventListener('click', () => { window.print(); });
+        // Print from preview button
+        document.getElementById('printNow')?.addEventListener('click', () => {
+            const printContents = document.getElementById('printPreviewContent').innerHTML;
+            const printWin = window.open();
+            printWin.document.write(printContents);
+            printWin.document.close();
+            printWin.print();
+        });
         document.getElementById('downloadPdfFromPreview')?.addEventListener('click', async () => {
             document.getElementById('printPreviewModal').classList.remove('active');
             await generatePDF();
@@ -1020,7 +1120,7 @@
         }
         renderEditor();
         updatePreview();
-        setTimeout(() => showToast('Welcome to Halder & Co. Invoice System', 'info'), 1000);
+        setTimeout(() => showToast('Halder & Co. Invoice System Ready', 'info'), 1000);
     });
 </script>
 </body>
