@@ -838,6 +838,7 @@
         <div class="export-options">
             <div class="export-option" data-type="print"><i class="fas fa-print fa-2x"></i><br>Print</div>
             <div class="export-option" data-type="pdf"><i class="fas fa-file-pdf fa-2x"></i><br>Download PDF</div>
+            <div class="export-option" data-type="docx"><i class="fas fa-file-word fa-2x"></i><br>Download DOCX</div>
             <div class="export-option" data-type="preview"><i class="fas fa-eye fa-2x"></i><br>Preview</div>
         </div>
         <div class="modal-footer" style="display:flex; justify-content:flex-end; gap:12px; margin-top:20px;">
@@ -851,6 +852,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('currentYear').textContent = new Date().getFullYear();
@@ -1135,6 +1137,11 @@
         
         function getPrintHtml() {
             const clone = document.getElementById('previewPanel').cloneNode(true);
+            // Replace logo image src with data URL for reliable export
+            if (logoDataUrl) {
+                const logoImg = clone.querySelector('.invoice-header-preview img');
+                if (logoImg) logoImg.src = logoDataUrl;
+            }
             return '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Halder & Co. Invoice</title><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><style>body { font-family: "Source Sans 3", sans-serif; margin: 20mm; } .watermark { opacity: 0.05; } .no-print { display: none; } .invoice-table { width:100%; border-collapse:collapse; } th, td { border-bottom:1px solid #ddd; padding:8px; } .summary { max-width:320px; margin-left:auto; } .authorization { display:flex; justify-content:space-between; margin-top:30px; } .cash-note { background:#fff3cd; padding:8px; }</style></head><body>'+clone.outerHTML+'</body></html>';
         }
         
@@ -1190,6 +1197,28 @@
             }
         }
         
+        function generateDOCX() {
+            try {
+                const invoiceNo = document.getElementById('invoiceNo').value || 'Draft';
+                const htmlContent = getPrintHtml();
+                // Use html-docx-js to convert HTML to DOCX blob
+                const converted = htmlDocx.asBlob(htmlContent, { orientation: 'portrait' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(converted);
+                link.href = url;
+                link.download = `Halder_Invoice_${invoiceNo}.docx`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                showToast('DOCX downloaded successfully');
+                exportModal.classList.remove('active');
+            } catch (err) {
+                console.error(err);
+                showToast('DOCX generation failed. Please try again.', 'error');
+            }
+        }
+        
         function directPrint() {
             const win = window.open();
             win.document.write(getPrintHtml());
@@ -1210,6 +1239,7 @@
         document.getElementById('confirmExportBtn').onclick = () => {
             if(selectedType === 'print') directPrint();
             else if(selectedType === 'pdf') generatePDF();
+            else if(selectedType === 'docx') generateDOCX();
             else if(selectedType === 'preview') showPreview();
             selectedType = null;
             document.getElementById('confirmExportBtn').disabled = true;
