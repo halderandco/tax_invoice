@@ -853,6 +853,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.js"></script>
+<!-- Add docx library for high-fidelity DOCX generation (image-based, matching PDF exactly) -->
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('currentYear').textContent = new Date().getFullYear();
@@ -1137,7 +1139,6 @@
         
         function getPrintHtml() {
             const clone = document.getElementById('previewPanel').cloneNode(true);
-            // Replace logo image src with data URL for reliable export
             if (logoDataUrl) {
                 const logoImg = clone.querySelector('.invoice-header-preview img');
                 if (logoImg) logoImg.src = logoDataUrl;
@@ -1197,24 +1198,107 @@
             }
         }
         
-        function generateDOCX() {
+        // ENHANCED DOCX GENERATION: Image-based to match PDF exactly
+        async function generateDOCX() {
+            const confirmBtn = document.getElementById('confirmExportBtn');
+            confirmBtn.disabled = true;
+            showToast('Preparing high-fidelity DOCX, please wait...', 'info');
             try {
+                if(!logoDataUrl) await setWatermarkAndLogoData();
+                // Create temporary DOM element with exact preview content
+                const html = getPrintHtml();
+                const tempDiv = document.createElement('div');
+                tempDiv.style.position = 'absolute';
+                tempDiv.style.left = '-9999px';
+                tempDiv.style.top = '0';
+                tempDiv.style.width = '800px';
+                tempDiv.style.background = 'white';
+                tempDiv.innerHTML = html;
+                document.body.appendChild(tempDiv);
+                await new Promise(r => setTimeout(r, 600));
+                const target = tempDiv.querySelector('.preview-panel');
+                if (!target) throw new Error('Preview panel missing');
+                
+                // Render to canvas with same scale as PDF
+                const fullCanvas = await html2canvas(target, {
+                    scale: 2.5,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff',
+                    windowWidth: target.scrollWidth,
+                    windowHeight: target.scrollHeight
+                });
+                document.body.removeChild(tempDiv);
+                
+                // A4 dimensions in points (1 point = 1/72 inch) and pixels at 96 DPI
+                // PDF uses 210mm x 297mm. For DOCX image placement we use EMU (English Metric Units)
+                // We'll slice the canvas into pages based on A4 aspect ratio (210:297)
+                const pageWidthPx = (210 / 25.4) * 96;   // ~793.7 px at 96 DPI
+                const pageHeightPx = (297 / 25.4) * 96;  // ~1123.0 px
+                const totalHeight = fullCanvas.height;
+                const totalWidth = fullCanvas.width;
+                const numPages = Math.ceil(totalHeight / pageHeightPx);
+                
+                const { Document, Packer, Paragraph, ImageRun, PageBreak } = window.docx;
+                const sections = [];
+                
+                for (let i = 0; i < numPages; i++) {
+                    const startY = i * pageHeightPx;
+                    const endY = Math.min(startY + pageHeightPx, totalHeight);
+                    const sliceHeight = endY - startY;
+                    
+                    // Create temporary canvas for slice
+                    const sliceCanvas = document.createElement('canvas');
+                    sliceCanvas.width = totalWidth;
+                    sliceCanvas.height = sliceHeight;
+                    const ctx = sliceCanvas.getContext('2d');
+                    ctx.drawImage(fullCanvas, 0, startY, totalWidth, sliceHeight, 0, 0, totalWidth, sliceHeight);
+                    
+                    // Convert to blob (PNG)
+                    const imageBlob = await new Promise(resolve => sliceCanvas.toBlob(resolve, 'image/png'));
+                    const imageBuffer = await imageBlob.arrayBuffer();
+                    
+                    // Add page with image
+                    const pageChildren = [
+                        new ImageRun({
+                            data: imageBuffer,
+                            transformation: { width: totalWidth, height: sliceHeight }
+                        })
+                    ];
+                    if (i < numPages - 1) {
+                        pageChildren.push(new Paragraph({ children: [new PageBreak()] }));
+                    }
+                    sections.push(new Paragraph({ children: pageChildren }));
+                }
+                
+                const doc = new Document({
+                    sections: [{
+                        properties: {
+                            page: {
+                                margin: { top: 0, right: 0, bottom: 0, left: 0 }
+                            }
+                        },
+                        children: sections
+                    }]
+                });
+                
+                const buffer = await Packer.toBlob(doc);
                 const invoiceNo = document.getElementById('invoiceNo').value || 'Draft';
-                const htmlContent = getPrintHtml();
-                // Use html-docx-js to convert HTML to DOCX blob
-                const converted = htmlDocx.asBlob(htmlContent, { orientation: 'portrait' });
                 const link = document.createElement('a');
-                const url = URL.createObjectURL(converted);
+                const url = URL.createObjectURL(buffer);
                 link.href = url;
                 link.download = `Halder_Invoice_${invoiceNo}.docx`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
-                showToast('DOCX downloaded successfully');
+                
+                confirmBtn.disabled = false;
                 exportModal.classList.remove('active');
+                showToast('DOCX downloaded successfully (exact visual match)');
             } catch (err) {
                 console.error(err);
+                confirmBtn.disabled = false;
                 showToast('DOCX generation failed. Please try again.', 'error');
             }
         }
